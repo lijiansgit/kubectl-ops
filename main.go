@@ -3,15 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path"
+
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 var (
 	clientset *kubernetes.Clientset
-	kubeConf string
+	kubeConf  string
 )
 
 func init() {
@@ -37,20 +38,19 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("connect kubernets ok")
-
+	fmt.Println("Connect Kubernets OK")
 	_, err = clientset.AppsV1beta1().Deployments("default").Create(deployment)
 	if err != nil {
 		panic(err)
 	}
 
-	//huidu
+	return
+	//huidu todo
 	pod.Name = pod.Name + "-huidu"
 	_, err = clientset.CoreV1().Pods("default").Create(pod)
 	if err != nil {
 		panic(err)
 	}
 
-
-	fmt.Println("connect kubernets end")
+	fmt.Println("Connect Kubernets END")
 }
