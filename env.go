@@ -5,13 +5,14 @@ const (
 	// jenkins shell build parms
 	//
 	// default jenkins project name
-	// DeployName = "K8S_DEPLOY_NAME"
+	DeployName = "K8S_DEPLOY_NAME"
 	// default namespace: default
 	DeployNamespace                  = "K8S_DEPLOY_NAMESPACE"
 	DeployReplicas                   = "K8S_DEPLOY_REPLICAS"
 	DeployMinReadySeconds            = "K8S_DEPLOY_MRS"
 	DeployRevisionHistoryLimit       = "K8S_DEPLOY_RHL"
 	PodNamespace                     = "K8S_POD_NAMESPACE"
+	PodName                          = "K8S_POD_NAME"
 	PodTerminationGracePeriodSeconds = "K8S_POD_TGPS"
 	AppPort                          = "K8S_APP_PORT"
 	AppLimitsCPU                     = "K8S_APP_LIMIT_CPU"
@@ -22,11 +23,13 @@ const (
 	AppLivenessDelay                 = "K8S_APP_LIVE_DELAY"
 	AppReadinessPath                 = "K8S_APP_READ_PATH"
 	AppReadinessDelay                = "K8S_APP_READ_DELAY"
+	AppBuildCmd                      = "K8S_APP_BUILD_CMD"
+	AppBuildPath                     = "K8S_APP_BUILD_PATH"
+	DockerHub                        = "K8S_DOCKER_HUB"
 	//DeploySelectorLabelApp = "K8S_DEPLOY_SLA"
 	//DeployRollingUpdateMaxSurge	=	"K8S_DEPLOY_RUMS"
 	//DeployRollingUpdateMaxUnavailable	=	"K8S_DEPLOY_RUMU"
 	//DeployStrategyType	=	"K8S_DEPLOY_ST"
-	//PodName = "K8S_POD_NAME"
 	//PodLabelApp = "K8S_POD_LA"
 	//PodRestartPolicy = "K8S_POD_RP"
 	//AppName = "K8S_APP_NAME"
@@ -36,4 +39,8 @@ const (
 	//AppENV = "K8S_APP_ENV"
 	//AppLivenessPort   = "K8S_APP_LIVE_PORT"
 	//AppReadinessPort  = "K8S_APP_READ_PORT"
+	//AppCopyDir					= "K8S_APP_COPY_DIR"
+
+	// Jenkins variabes
+	AppGitBranch = "GIT_BRANCH"
 )
