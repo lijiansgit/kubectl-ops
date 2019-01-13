@@ -41,7 +41,9 @@ func main() {
 		panic(err)
 	}
 
-	build()
+	if err = build(); err != nil {
+		panic(err)
+	}
 
 	kconf, err := clientcmd.BuildConfigFromFlags("", kubeConf)
 	if err != nil {

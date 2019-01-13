@@ -51,5 +51,5 @@ func writeDockerFile() (err error) {
 		return err
 	}
 
-	return err
+	return nil
 }
