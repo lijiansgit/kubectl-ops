@@ -8,3 +8,7 @@ common:
 dev: common
 	echo "dev"
 	./dev
+
+com: common
+	echo "company test"
+	scp dev root@192.168.56.102:/qtt/bin/kubectl-ops

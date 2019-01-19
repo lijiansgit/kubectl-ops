@@ -55,9 +55,9 @@ func main() {
 		panic(err)
 	}
 
-	log.Info("Connect Kubernets: %s OK", kconf.Host)
+	log.Debug("Connect Kubernets: %s OK", kconf.Host)
 
 	release()
 
-	log.Info("Connect Kubernets: %s END", kconf.Host)
+	log.Debug("Connect Kubernets: %s END", kconf.Host)
 }

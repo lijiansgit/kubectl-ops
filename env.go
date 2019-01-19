@@ -43,4 +43,5 @@ const (
 
 	// Jenkins variabes
 	AppGitBranch = "GIT_BRANCH"
+	AppEnv       = "APP_ENV"
 )

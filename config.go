@@ -3,8 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"path"
+	"strings"
+
+	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"k8s.io/apimachinery/pkg/api/resource"
 
@@ -18,6 +22,9 @@ const (
 	dockerFileName      = "Dockerfile"
 	defaultAppBuildCmd  = "make"
 	defaultAppBuildPath = "./"
+	defaultAppGitBranch = "master"
+	defaultAppEnv       = "dev"
+	defaultAppLabelsKey = "app"
 	defaultDockerHub    = "test.hub.com"
 	defaultNamespace    = "default"
 )
@@ -54,6 +61,7 @@ func NewConfig() (config *Config, err error) {
 	}
 	config.dockerFile = string(dockerFiles)
 
+	// deployment
 	deploys, err := clt.Get("deploy")
 	if err != nil {
 		return config, err
@@ -63,6 +71,7 @@ func NewConfig() (config *Config, err error) {
 		return config, err
 	}
 
+	// pod
 	pods, err := clt.Get("pod")
 	if err != nil {
 		return config, err
@@ -72,6 +81,7 @@ func NewConfig() (config *Config, err error) {
 		return config, err
 	}
 
+	// service
 	service, err := clt.Get("service")
 	if err != nil {
 		return config, err
@@ -81,13 +91,30 @@ func NewConfig() (config *Config, err error) {
 		return config, err
 	}
 
+	// env value
 	config.GetEnv()
-
-	appTags := fmt.Sprintf("%s:%s", config.pod.Name, config.appGitBranch)
+	// deployment + pod
+	config.deployment.Spec.Selector.MatchLabels[defaultAppLabelsKey] = config.deployment.Name
+	config.deployment.Spec.Template.ObjectMeta.Labels[defaultAppLabelsKey] = config.deployment.Name
+	config.pod.ObjectMeta.Labels[defaultAppLabelsKey] = config.pod.Name
+	appTags := fmt.Sprintf("%s:%s", config.pod.Name, ReleaseTag(config.appGitBranch))
 	config.image = path.Join(config.dockerHub, appTags)
 	config.pod.Spec.Containers[0].Image = config.image
 	config.deployment.Spec.Template.Spec = config.pod.Spec
+	// service
+	config.service.Namespace = config.deployment.Namespace
+	config.service.Name = config.deployment.Name
+	config.service.Spec.Ports[0].Port = config.pod.Spec.Containers[0].Ports[0].ContainerPort
+	config.service.Spec.Ports[0].TargetPort = intstr.FromInt(int(config.pod.Spec.Containers[0].Ports[0].ContainerPort))
+	config.service.Spec.Selector[defaultAppLabelsKey] = config.deployment.Name
 
+	// same name
+	if config.deployment.Namespace != config.pod.Namespace {
+		return config, fmt.Errorf("deployment namespace: %s, pod namespace: %s",
+			config.deployment.Namespace, config.pod.Namespace)
+	}
+
+	// gray pod
 	config.grayPod = config.pod
 	config.grayPod.Name = config.grayPod.Name + "-gray"
 
@@ -210,6 +237,8 @@ func (c *Config) GetEnv() {
 	agb := os.Getenv(AppGitBranch)
 	if NoNull(agb) {
 		c.appGitBranch = agb
+	} else {
+		c.appGitBranch = defaultAppGitBranch
 	}
 }
 
@@ -219,4 +248,22 @@ func NoNull(str string) bool {
 	}
 
 	return true
+}
+
+func ReleaseTag(str string) string {
+	for _, v := range "/\\_" {
+		str = strings.Replace(str, string(v), "-", -1)
+	}
+	env := os.Getenv(AppEnv)
+	if !NoNull(env) {
+		env = defaultAppEnv
+	}
+
+	if env == "prd" || env == "pre" {
+		random := rand.Intn(10000000000000000)
+		str = fmt.Sprintf("%s-%d", str, random)
+		return str
+	}
+
+	return env
 }
