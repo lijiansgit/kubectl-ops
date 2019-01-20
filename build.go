@@ -9,25 +9,26 @@ import (
 )
 
 func build() (err error) {
-	return nil
 	if err = writeDockerFile(); err != nil {
 		return err
 	}
 
-	log.Info("docker build %s", config.image)
 	buildCmd := fmt.Sprintf("docker build -t %s .", config.image)
-	_, err = libs.Cmd(buildCmd, config.appBuildPath)
+	log.Info("build cmd: %s", buildCmd)
+	res, err := libs.Cmd(buildCmd, config.appBuildPath)
 	if err != nil {
 		return err
 	}
 
-	log.Info("docker push %s", config.image)
+	log.Debug("build cmd res: %s", res)
 	pushCmd := fmt.Sprintf("docker push %s", config.image)
-	_, err = libs.Cmd(pushCmd, config.appBuildPath)
+	log.Info("push cmd: %s", pushCmd)
+	res, err = libs.Cmd(pushCmd, config.appBuildPath)
 	if err != nil {
 		return err
 	}
 
+	log.Debug("push cmd res: %s", res)
 	return nil
 }
 
