@@ -79,6 +79,7 @@ func NewRelease() *Release {
 	release.deploymentClt = clientset.AppsV1().Deployments(config.deployment.Namespace)
 	release.podClt = clientset.CoreV1().Pods(config.pod.Namespace)
 	release.serviceClt = clientset.CoreV1().Services(config.service.Namespace)
+
 	return release
 }
 
