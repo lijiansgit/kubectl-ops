@@ -8,13 +8,12 @@ import (
 	"path"
 	"strings"
 
-	"k8s.io/apimachinery/pkg/util/intstr"
-
-	"k8s.io/apimachinery/pkg/api/resource"
+	appsv1 "k8s.io/api/apps/v1"
 
 	"github.com/lijiansgit/go/libs/consul"
 	"k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 const (
@@ -31,12 +30,10 @@ const (
 
 type Config struct {
 	// k8s
-	deployment *v1beta1.Deployment
+	deployment *appsv1.Deployment
 	pod        *v1.Pod
 	grayPod    *v1.Pod
-	image      string
 	service    *v1.Service
-	ingress    *v1beta1.Ingress
 
 	// docker
 	dockerHub    string
@@ -44,6 +41,7 @@ type Config struct {
 	appBuildCmd  string
 	appBuildPath string
 	appGitBranch string
+	image        string
 }
 
 func NewConfig() (config *Config, err error) {

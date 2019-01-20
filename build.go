@@ -9,6 +9,7 @@ import (
 )
 
 func build() (err error) {
+	return nil
 	if err = writeDockerFile(); err != nil {
 		return err
 	}

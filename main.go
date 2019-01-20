@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"path"
+	"time"
 
 	log "github.com/lijiansgit/go/libs/log4go"
 	"k8s.io/client-go/kubernetes"
@@ -21,12 +22,14 @@ var (
 func init() {
 	defaultKubeConf := path.Join(os.Getenv("HOME"), ".kube/config")
 	flag.StringVar(&kubeConf, "c", defaultKubeConf, "kubernetes client config file path")
-	flag.BoolVar(&verbose, "v", true, "log verbose")
+	flag.BoolVar(&verbose, "v", false, "log verbose")
 	flag.StringVar(&action, "a", "deploy", "kubernetes client action: deploy/gray/rollback")
 }
 
 func main() {
 	flag.Parse()
+
+	startTime := time.Now()
 
 	if verbose == true {
 		log.AddFilter("stdout", log.DEBUG, log.NewConsoleLogWriter())
@@ -60,4 +63,5 @@ func main() {
 	release()
 
 	log.Debug("Connect Kubernets: %s END", kconf.Host)
+	log.Info("Run Time: %v", time.Since(startTime))
 }
