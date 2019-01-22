@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 
@@ -258,8 +258,9 @@ func ReleaseTag(str string) string {
 	}
 
 	if env == "prd" || env == "pre" {
-		random := rand.Intn(10000000000000000)
-		str = fmt.Sprintf("%s-%d", str, random)
+		//random := rand.Intn(10000000000000000)
+		times := time.Now().UnixNano()
+		str = fmt.Sprintf("%s-%s-%d", env, str, times)
 		return str
 	}
 
