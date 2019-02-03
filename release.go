@@ -18,20 +18,37 @@ var (
 )
 
 func release() {
-	if action == "deploy" {
+	if config.releaseAction == "check" {
+		log.Info("check")
+		check()
+	}
+
+	if config.releaseAction == "deploy" {
+		log.Info("deploy")
 		deploy()
 	}
 
-	if action == "gray" {
+	if config.releaseAction == "gray" {
+		log.Info("gray")
 		gray()
 	}
 
-	if action == "rollback" {
+	if config.releaseAction == "rollback" {
+		log.Info("rollback")
 		rollback()
 	}
 }
 
+func check() {
+	r := NewRelease()
+	r.CheckDeployment()
+}
+
 func deploy() {
+	if err := build(); err != nil {
+		panic(err)
+	}
+
 	r := NewRelease()
 	r.DeletePod()
 	log.Debug("deployment: %s", config.deployment.String())
@@ -50,22 +67,36 @@ func deploy() {
 		log.Warn("service: %s exist, skip...", config.service.Name)
 	}
 
-	r.CheckDeployment()
+	if config.releaseCheck == "1" {
+		r.CheckDeployment()
+	}
 }
 
 func gray() {
 	// 灰度 todo
+	if err := build(); err != nil {
+		panic(err)
+	}
+
 	r := NewRelease()
 	log.Debug("gray pod: %s", config.grayPod.String())
 
 	r.DeletePod()
 	r.CreatePod()
 
-	r.CheckPod()
+	if config.releaseCheck == "1" {
+		r.CheckPod()
+	}
 }
 
 func rollback() {
 	// todo
+	r := NewRelease()
+	log.Debug("rollback deploy: %s image: %s", config.deployment.Name, config.image)
+	r.UpdateDeployment()
+	if config.releaseCheck == "1" {
+		r.CheckDeployment()
+	}
 }
 
 type Release struct {
@@ -186,7 +217,7 @@ func (r *Release) DeletePod() {
 		if _, err := r.GetPod(); err != nil {
 			break
 		} else {
-			log.Info("pod: %s delete ing...", config.grayPod.Name)
+			log.Info("pod: %s delete ...", config.grayPod.Name)
 		}
 
 		time.Sleep(1e9)

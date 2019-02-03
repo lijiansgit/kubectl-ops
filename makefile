@@ -11,7 +11,7 @@ dev: common
 
 com: common
 	echo "company test"
-	scp dev root@192.168.56.102:/bin/kubectl-ops
+	scp dev root@10.0.2.36:/bin/kubectl-ops
 
 home: common
 	echo "home test"

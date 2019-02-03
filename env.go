@@ -42,6 +42,8 @@ const (
 	//AppCopyDir					= "K8S_APP_COPY_DIR"
 
 	// Jenkins variabes
-	AppGitBranch = "GIT_BRANCH"
-	AppEnv       = "APP_ENV"
+	AppGitBranch  = "GIT_BRANCH"
+	AppEnv        = "K8S_APP_ENV"
+	ReleaseCheck  = "K8S_RELEASE_CHECK"
+	ReleaseAction = "K8S_RELEASE_ACTION"
 )

@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 
@@ -17,15 +16,17 @@ import (
 )
 
 const (
-	consulPath          = "kubernetes/v1"
-	dockerFileName      = "Dockerfile"
-	defaultAppBuildCmd  = "make"
-	defaultAppBuildPath = "./"
-	defaultAppGitBranch = "master"
-	defaultAppEnv       = "dev"
-	defaultAppLabelsKey = "app"
-	defaultDockerHub    = "test.hub.com"
-	defaultNamespace    = "default"
+	consulPath           = "kubernetes/v1"
+	dockerFileName       = "Dockerfile"
+	defaultAppBuildCmd   = "make"
+	defaultAppBuildPath  = "./"
+	defaultAppGitBranch  = "master"
+	defaultAppEnv        = "dev"
+	defaultAppLabelsKey  = "app"
+	defaultDockerHub     = "test.hub.com"
+	defaultNamespace     = "default"
+	defaultReleaseCheck  = "1"
+	defaultReleaseAction = "check" //check,deploy,gray,rollback
 )
 
 type Config struct {
@@ -36,12 +37,14 @@ type Config struct {
 	service    *v1.Service
 
 	// docker
-	dockerHub    string
-	dockerFile   string
-	appBuildCmd  string
-	appBuildPath string
-	appGitBranch string
-	image        string
+	dockerHub     string
+	dockerFile    string
+	appBuildCmd   string
+	appBuildPath  string
+	appGitBranch  string
+	image         string
+	releaseCheck  string
+	releaseAction string
 }
 
 func NewConfig() (config *Config, err error) {
@@ -238,6 +241,16 @@ func (c *Config) GetEnv() {
 	} else {
 		c.appGitBranch = defaultAppGitBranch
 	}
+
+	c.releaseCheck = os.Getenv(ReleaseCheck)
+	if !NoNull(c.releaseCheck) {
+		c.releaseCheck = defaultReleaseCheck
+	}
+
+	c.releaseAction = os.Getenv(ReleaseAction)
+	if !NoNull(c.releaseAction) {
+		c.releaseAction = defaultReleaseAction
+	}
 }
 
 func NoNull(str string) bool {
@@ -257,10 +270,10 @@ func ReleaseTag(str string) string {
 		env = defaultAppEnv
 	}
 
-	if env == "prd" || env == "pre" {
+	if env == "prd" {
 		//random := rand.Intn(10000000000000000)
-		times := time.Now().UnixNano()
-		str = fmt.Sprintf("%s-%s-%d", env, str, times)
+		//times := time.Now().UnixNano()
+		str = fmt.Sprintf("%s-%s", env, str)
 		return str
 	}
 

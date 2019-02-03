@@ -15,7 +15,6 @@ var (
 	clientset *kubernetes.Clientset
 	kubeConf  string
 	verbose   bool
-	action    string
 	config    *Config
 )
 
@@ -23,7 +22,6 @@ func init() {
 	defaultKubeConf := path.Join(os.Getenv("HOME"), ".kube/config")
 	flag.StringVar(&kubeConf, "c", defaultKubeConf, "kubernetes client config file path")
 	flag.BoolVar(&verbose, "v", false, "log verbose")
-	flag.StringVar(&action, "a", "deploy", "kubernetes client action: deploy/gray/rollback")
 }
 
 func main() {
@@ -41,10 +39,6 @@ func main() {
 	var err error
 	config, err = NewConfig()
 	if err != nil {
-		panic(err)
-	}
-
-	if err = build(); err != nil {
 		panic(err)
 	}
 
