@@ -18,23 +18,20 @@ var (
 )
 
 func release() {
+	log.Info("release action: %s", config.releaseAction)
 	if config.releaseAction == "check" {
-		log.Info("check")
 		check()
 	}
 
 	if config.releaseAction == "deploy" {
-		log.Info("deploy")
 		deploy()
 	}
 
 	if config.releaseAction == "gray" {
-		log.Info("gray")
 		gray()
 	}
 
 	if config.releaseAction == "rollback" {
-		log.Info("rollback")
 		rollback()
 	}
 }
