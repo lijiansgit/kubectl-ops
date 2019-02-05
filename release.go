@@ -8,8 +8,10 @@ import (
 
 	log "github.com/lijiansgit/go/libs/log4go"
 	appsv1 "k8s.io/api/apps/v1"
+	autov1 "k8s.io/api/autoscaling/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	cltappsv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
+	cltauto "k8s.io/client-go/kubernetes/typed/autoscaling/v1"
 	cltcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
@@ -64,6 +66,15 @@ func deploy() {
 		log.Warn("service: %s exist, skip...", config.service.Name)
 	}
 
+	if config.appHPA != "0" && config.appEnv == "prd" {
+		if _, err := r.GetAutoscaling(); err != nil {
+			log.Warn("hpa: %s no exist, create...", config.hpa.Name)
+			r.CreateAutoscaling()
+		} else {
+			r.UpdateAutoscaling()
+		}
+	}
+
 	if config.releaseCheck == "1" {
 		r.CheckDeployment()
 	}
@@ -89,7 +100,7 @@ func gray() {
 func rollback() {
 	// todo
 	r := NewRelease()
-	log.Debug("rollback deploy: %s image: %s", config.deployment.Name, config.image)
+	log.Info("rollback deploy: %s image: %s", config.deployment.Name, config.image)
 	r.UpdateDeployment()
 	if config.releaseCheck == "1" {
 		r.CheckDeployment()
@@ -100,6 +111,7 @@ type Release struct {
 	deploymentClt cltappsv1.DeploymentInterface
 	podClt        cltcorev1.PodInterface
 	serviceClt    cltcorev1.ServiceInterface
+	hpaClt        cltauto.HorizontalPodAutoscalerInterface
 }
 
 func NewRelease() *Release {
@@ -107,6 +119,7 @@ func NewRelease() *Release {
 	release.deploymentClt = clientset.AppsV1().Deployments(config.deployment.Namespace)
 	release.podClt = clientset.CoreV1().Pods(config.pod.Namespace)
 	release.serviceClt = clientset.CoreV1().Services(config.service.Namespace)
+	release.hpaClt = clientset.AutoscalingV1().HorizontalPodAutoscalers(config.pod.Namespace)
 
 	return release
 }
@@ -246,4 +259,29 @@ func (r *Release) UpdateService() {
 	}
 
 	log.Info("service: %s update ok", config.service.Name)
+}
+
+func (r *Release) GetAutoscaling() (a *autov1.HorizontalPodAutoscaler, err error) {
+	a, err = r.hpaClt.Get(config.hpa.Name, metav1.GetOptions{})
+	return a, err
+}
+
+func (r *Release) CreateAutoscaling() {
+	_, err := r.hpaClt.Create(config.hpa)
+	if err != nil {
+		log.Error("hpa: %s create err(%v)", config.hpa.Name, err)
+		panic(ErrKubeclt)
+	}
+
+	log.Info("hpa: %s create ok", config.hpa.Name)
+}
+
+func (r *Release) UpdateAutoscaling() {
+	_, err := r.hpaClt.Update(config.hpa)
+	if err != nil {
+		log.Error("hpa: %s update err(%v)", config.hpa.Name, err)
+		panic(ErrKubeclt)
+	}
+
+	log.Info("hpa: %s update ok", config.hpa.Name)
 }

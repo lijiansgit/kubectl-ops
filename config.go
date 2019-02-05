@@ -11,6 +11,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 
 	"github.com/lijiansgit/go/libs/consul"
+	autov1 "k8s.io/api/autoscaling/v1"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -28,6 +29,7 @@ const (
 	defaultNamespace     = "default"
 	defaultReleaseCheck  = "1"
 	defaultReleaseAction = "check" //check,deploy,gray,rollback
+	defaultHPAKind       = "Deployment"
 )
 
 type Config struct {
@@ -36,13 +38,16 @@ type Config struct {
 	pod        *v1.Pod
 	grayPod    *v1.Pod
 	service    *v1.Service
+	hpa        *autov1.HorizontalPodAutoscaler
 
 	// docker
 	dockerHub     string
 	dockerFile    string
+	appHPA        string
 	appBuildCmd   string
 	appBuildPath  string
 	appGitBranch  string
+	appEnv        string
 	image         string
 	releaseCheck  string
 	releaseAction string
@@ -93,13 +98,23 @@ func NewConfig() (config *Config, err error) {
 		return config, err
 	}
 
+	// hpa
+	hpa, err := clt.Get("hpa")
+	if err != nil {
+		return config, err
+	}
+
+	if err = json.Unmarshal(hpa, &config.hpa); err != nil {
+		return config, err
+	}
+
 	// env value
 	config.GetEnv()
 	// deployment + pod
 	config.deployment.Spec.Selector.MatchLabels[defaultAppLabelsKey] = config.deployment.Name
 	config.deployment.Spec.Template.ObjectMeta.Labels[defaultAppLabelsKey] = config.deployment.Name
 	config.pod.ObjectMeta.Labels[defaultAppLabelsKey] = config.pod.Name
-	appTags := fmt.Sprintf("%s:%s", config.pod.Name, ReleaseTag(config.appGitBranch))
+	appTags := fmt.Sprintf("%s:%s", config.pod.Name, ReleaseTag(config.appGitBranch, config.appEnv))
 	config.image = path.Join(config.dockerHub, appTags)
 	config.pod.Spec.Containers[0].Image = config.image
 	config.deployment.Spec.Template.Spec = config.pod.Spec
@@ -114,6 +129,11 @@ func NewConfig() (config *Config, err error) {
 		config.service.Spec.Ports[k].TargetPort = intstr.FromInt(int(v.ContainerPort))
 	}
 	config.service.Spec.Selector[defaultAppLabelsKey] = config.deployment.Name
+
+	// hpa
+	config.hpa.Name = config.pod.Name
+	config.hpa.Namespace = config.pod.Namespace
+	config.hpa.Spec.ScaleTargetRef.Name = config.pod.Name
 
 	// same name
 	if config.deployment.Namespace != config.pod.Namespace {
@@ -158,9 +178,9 @@ func (c *Config) GetEnv() {
 	}
 
 	// pod
-	ns := os.Getenv(PodNamespace)
-	if NoNull(ns) {
-		c.pod.Namespace = ns
+	pn := os.Getenv(PodNamespace)
+	if NoNull(pn) {
+		c.pod.Namespace = pn
 	} else {
 		c.pod.Namespace = defaultNamespace
 	}
@@ -173,6 +193,33 @@ func (c *Config) GetEnv() {
 	tgps := os.Getenv(PodTerminationGracePeriodSeconds)
 	if NoNull(tgps) {
 		c.pod.Spec.TerminationGracePeriodSeconds = strToInt64p(tgps)
+	}
+
+	ph := os.Getenv(PodHPA)
+	if NoNull(ph) {
+		c.appHPA = ph
+	}
+
+	phk := os.Getenv(PodHPAKind)
+	if NoNull(phk) {
+		c.hpa.Spec.ScaleTargetRef.Kind = phk
+	} else {
+		c.hpa.Spec.ScaleTargetRef.Kind = defaultHPAKind
+	}
+
+	phm := os.Getenv(PodHPAMin)
+	if NoNull(phm) {
+		c.hpa.Spec.MinReplicas = strToInt32p(phm)
+	}
+
+	phmm := os.Getenv(PodHPAMax)
+	if NoNull(phmm) {
+		c.hpa.Spec.MaxReplicas = strToInt32(phmm)
+	}
+
+	phc := os.Getenv(PodHPACPU)
+	if NoNull(phc) {
+		c.hpa.Spec.TargetCPUUtilizationPercentage = strToInt32p(phc)
 	}
 
 	ap := os.Getenv(AppPort)
@@ -220,8 +267,8 @@ func (c *Config) GetEnv() {
 		c.pod.Spec.Containers[0].ReadinessProbe.InitialDelaySeconds = strToInt32(rd)
 	}
 
-	hc := os.Getenv(AppHealthCheck)
-	if NoNull(hc) && hc == "0" {
+	hcc := os.Getenv(AppHealthCheck)
+	if NoNull(hcc) && hcc == "0" {
 		c.pod.Spec.Containers[0].LivenessProbe = nil
 		c.pod.Spec.Containers[0].ReadinessProbe = nil
 	}
@@ -264,6 +311,13 @@ func (c *Config) GetEnv() {
 		c.appGitBranch = defaultAppGitBranch
 	}
 
+	env := os.Getenv(AppEnv)
+	if NoNull(env) {
+		c.appEnv = env
+	} else {
+		c.appEnv = defaultAppEnv
+	}
+
 	c.releaseCheck = os.Getenv(ReleaseCheck)
 	if !NoNull(c.releaseCheck) {
 		c.releaseCheck = defaultReleaseCheck
@@ -283,13 +337,9 @@ func NoNull(str string) bool {
 	return true
 }
 
-func ReleaseTag(str string) string {
+func ReleaseTag(str, env string) string {
 	for _, v := range "/\\_" {
 		str = strings.Replace(str, string(v), "-", -1)
-	}
-	env := os.Getenv(AppEnv)
-	if !NoNull(env) {
-		env = defaultAppEnv
 	}
 
 	if env == "prd" {
