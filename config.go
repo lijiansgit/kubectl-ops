@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -105,8 +106,13 @@ func NewConfig() (config *Config, err error) {
 	// service
 	config.service.Namespace = config.deployment.Namespace
 	config.service.Name = config.deployment.Name
-	config.service.Spec.Ports[0].Port = config.pod.Spec.Containers[0].Ports[0].ContainerPort
-	config.service.Spec.Ports[0].TargetPort = intstr.FromInt(int(config.pod.Spec.Containers[0].Ports[0].ContainerPort))
+	ports := config.pod.Spec.Containers[0].Ports
+	config.service.Spec.Ports = make([]v1.ServicePort, len(ports))
+	for k, v := range ports {
+		config.service.Spec.Ports[k].Name = strconv.Itoa(int(v.ContainerPort))
+		config.service.Spec.Ports[k].Port = v.ContainerPort
+		config.service.Spec.Ports[k].TargetPort = intstr.FromInt(int(v.ContainerPort))
+	}
 	config.service.Spec.Selector[defaultAppLabelsKey] = config.deployment.Name
 
 	// same name
@@ -171,7 +177,7 @@ func (c *Config) GetEnv() {
 
 	ap := os.Getenv(AppPort)
 	if NoNull(ap) {
-		c.pod.Spec.Containers[0].Ports[0].ContainerPort = strToInt32(ap)
+		c.pod.Spec.Containers[0].Ports = strToContainerPorts(ap)
 	}
 
 	lc := os.Getenv(AppLimitsCPU)
@@ -212,6 +218,22 @@ func (c *Config) GetEnv() {
 	rd := os.Getenv(AppReadinessDelay)
 	if NoNull(rd) {
 		c.pod.Spec.Containers[0].ReadinessProbe.InitialDelaySeconds = strToInt32(rd)
+	}
+
+	hc := os.Getenv(AppHealthCheck)
+	if NoNull(hc) && hc == "0" {
+		c.pod.Spec.Containers[0].LivenessProbe = nil
+		c.pod.Spec.Containers[0].ReadinessProbe = nil
+	}
+
+	ac := os.Getenv(AppCmd)
+	if NoNull(ac) {
+		c.pod.Spec.Containers[0].Command = strings.Split(ac, " ")
+	}
+
+	acp := os.Getenv(AppCmdPath)
+	if NoNull(acp) {
+		c.pod.Spec.Containers[0].WorkingDir = acp
 	}
 
 	abc := os.Getenv(AppBuildCmd)
