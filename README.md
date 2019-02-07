@@ -105,7 +105,16 @@ Config jenkins
 
 ## Usage
 
+查看命令帮助
+```bash
+kubectl-ops -h
+```
 
+-c: 连接kubernetes apiserver的配置文件，默认为$HOME/.kube/config
+
+-cp: consul 配置路径，默认为kubernetes/v1
+
+发布对象资源参数：[详解](./README_ENV.md)
 
 ## Contribute
 

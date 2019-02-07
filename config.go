@@ -25,7 +25,7 @@ const (
 	defaultAppGitBranch  = "master"
 	defaultAppEnv        = "dev"
 	defaultAppLabelsKey  = "app"
-	defaultDockerHub     = "test.hub.com"
+	defaultDockerHub     = "test.hub.com/test"
 	defaultNamespace     = "default"
 	defaultReleaseCheck  = "1"
 	defaultReleaseAction = "check"
