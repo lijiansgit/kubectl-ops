@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	consulPath           = "kubernetes/v1"
+	defaultConsulPath    = "kubernetes/v1"
 	dockerFileName       = "Dockerfile"
 	defaultAppBuildCmd   = "make"
 	defaultAppBuildPath  = "./"
@@ -28,7 +28,7 @@ const (
 	defaultDockerHub     = "test.hub.com"
 	defaultNamespace     = "default"
 	defaultReleaseCheck  = "1"
-	defaultReleaseAction = "check" //check,deploy,gray,rollback
+	defaultReleaseAction = "check"
 	defaultHPAKind       = "Deployment"
 )
 

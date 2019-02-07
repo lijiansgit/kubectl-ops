@@ -1,0 +1,14 @@
+[Unit]
+Description=Jenkins Service
+Documentation=https://jenkins.io/doc/pipeline/tour/getting-started/
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/sysconfig/jenkins
+WorkingDirectory=/data/jenkins
+ExecStart=/usr/bin/java -jar /data/jenkins/jenkins.war --httpPort=8080
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

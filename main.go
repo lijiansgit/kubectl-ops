@@ -12,15 +12,17 @@ import (
 )
 
 var (
-	clientset *kubernetes.Clientset
-	kubeConf  string
-	verbose   bool
-	config    *Config
+	clientset  *kubernetes.Clientset
+	kubeConf   string
+	consulPath string
+	verbose    bool
+	config     *Config
 )
 
 func init() {
 	defaultKubeConf := path.Join(os.Getenv("HOME"), ".kube/config")
 	flag.StringVar(&kubeConf, "c", defaultKubeConf, "kubernetes client config file path")
+	flag.StringVar(&consulPath, "cp", defaultConsulPath, "kubernetes base config consul path")
 	flag.BoolVar(&verbose, "v", false, "log verbose")
 }
 

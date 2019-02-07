@@ -1,0 +1,14 @@
+[Unit]
+Description=HashiCorp Consul Service
+Documentation=https://www.consul.io/docs/index.html
+After=network.target
+
+[Service]
+WorkingDirectory=/data/consul
+ExecStart=/usr/local/bin/consul agent -bootstrap -server -ui -data-dir /data/consul \
+            -bind=127.0.0.1 -advertise=127.0.0.1
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

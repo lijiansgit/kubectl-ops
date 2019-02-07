@@ -4,7 +4,10 @@ const (
 	// shell: export env=123
 	// jenkins shell build parms
 	//
-	// default jenkins project name
+	// consul addr, default:127.0.0.1:8500
+	// "CONSUL_HTTP_ADDR"
+	// DeployName and PodName = jenkins job name, JOB_NAME
+	// export K8S_DEPLOY_NAME=$JOB_NAME K8S_POD_NAME=$JOB_NAME
 	DeployName = "K8S_DEPLOY_NAME"
 	// default namespace: default
 	DeployNamespace                  = "K8S_DEPLOY_NAMESPACE"
@@ -54,8 +57,9 @@ const (
 	//AppCopyDir					= "K8S_APP_COPY_DIR"
 
 	// Jenkins variabes
-	AppGitBranch  = "GIT_BRANCH"
-	AppEnv        = "K8S_APP_ENV"
-	ReleaseCheck  = "K8S_RELEASE_CHECK"
+	AppGitBranch = "GIT_BRANCH"
+	AppEnv       = "K8S_APP_ENV"
+	ReleaseCheck = "K8S_RELEASE_CHECK"
+	// release action: check,deploy,gray,rollback
 	ReleaseAction = "K8S_RELEASE_ACTION"
 )

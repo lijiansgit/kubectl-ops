@@ -140,7 +140,7 @@ func (r *Release) CheckDeployment() {
 		}
 
 		status := deployment.Status
-		log.Info("Replicas: %d, Ready: %d, Updated: %d", status.Replicas,
+		log.Info("Name: %s, Replicas: %d, Ready: %d, Updated: %d", deployment.Name, status.Replicas,
 			status.ReadyReplicas, status.UpdatedReplicas)
 
 		if status.Replicas == status.ReadyReplicas && status.Replicas == status.UpdatedReplicas {
