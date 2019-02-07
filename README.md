@@ -115,6 +115,8 @@ kubectl-ops -h
 
 -cp: consul 配置路径，默认为kubernetes/v1
 
+Dockerfile从consul读取默认值，如果发现代码根目录存在此文件，则使用代码自定义Dockerfile
+
 发布对象资源参数：[详解](./README_ENV.md)
 
 ## Contribute
