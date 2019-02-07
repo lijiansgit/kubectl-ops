@@ -14,6 +14,7 @@ kubernetes 发布客户端工具，结合Jenkins使用，支持发布Deployment�
 * [Configuration](#configuration)
 * [Usage](#usage)
 * [Contribute](#contribute)
+* [TODO](#todo)
 
 
 ## Pre Requisites
@@ -119,5 +120,11 @@ kubectl-ops -h
 ## Contribute
 
 欢迎提交问题及反馈
+
+## TODO
+
+* 比例和动态灰度
+* Ingress
+
 
 ------------------------

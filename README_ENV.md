@@ -48,4 +48,5 @@ Consul配置里读取，也可单独设置：
 |K8S_DOCKER_HUB|test.hub.com/test|镜像推送HUB地址+项目名称|
 |K8S_APP_ENV|dev|容器运行环境：dev/qa/pre/prd|
 |K8S_RELEASE_CHECK|1|容器发布之后运行是否成功检查，0为关闭，1为打开|
+|K8S_RELEASE_ACTION|check|容器发布动作，check:检查运行状态/deploy:发布/gray:灰度/rollback:回滚|
 |GIT_BRANCH|origin/master|GIT代码分支/TAG|
