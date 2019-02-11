@@ -19,7 +19,6 @@ import (
 
 const (
 	defaultConsulPath    = "kubernetes/v1"
-	dockerFileName       = "Dockerfile"
 	defaultAppBuildCmd   = "make"
 	defaultAppBuildPath  = "./"
 	defaultAppGitBranch  = "master"
@@ -43,6 +42,7 @@ type Config struct {
 	// docker
 	dockerHub     string
 	dockerFile    string
+	dockerIgnore  string
 	appHPA        string
 	appBuildCmd   string
 	appBuildPath  string
@@ -62,11 +62,19 @@ func NewConfig() (config *Config, err error) {
 
 	clt.SetBasePath(consulPath)
 
-	dockerFiles, err := clt.Get("dockerfile")
+	dockerFile, err := clt.Get("dockerfile")
 	if err != nil {
 		return config, err
 	}
-	config.dockerFile = string(dockerFiles)
+
+	config.dockerFile = string(dockerFile)
+
+	dockerIgnore, err := clt.Get(".dockerignore")
+	if err != nil {
+		return config, err
+	}
+
+	config.dockerIgnore = string(dockerIgnore)
 
 	// deployment
 	deploys, err := clt.Get("deploy")

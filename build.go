@@ -8,6 +8,11 @@ import (
 	log "github.com/lijiansgit/go/libs/log4go"
 )
 
+const (
+	dockerFileName   = "Dockerfile"
+	dockerIgnoreName = ".dockerignore"
+)
+
 func build() (err error) {
 	if err = writeDockerFile(); err != nil {
 		return err
@@ -33,6 +38,20 @@ func build() (err error) {
 }
 
 func writeDockerFile() (err error) {
+	fi, err := os.Create(dockerIgnoreName)
+	if err != nil {
+		return err
+	}
+
+	defer fi.Close()
+
+	_, err = fi.WriteString(config.dockerIgnore)
+	if err != nil {
+		return err
+	}
+
+	log.Debug("%s write ok", dockerIgnoreName)
+
 	_, err = os.Stat(dockerFileName)
 	if err == nil {
 		log.Info("local %s file found", dockerFileName)
