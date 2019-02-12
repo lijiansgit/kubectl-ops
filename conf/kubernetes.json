@@ -1,5 +1,10 @@
 [
 	{
+		"key": "kubernetes/v1/.dockerignore",
+		"flags": 0,
+		"value": "IyBGb3IgRG9ja2VyCiMgZG9ja2VyIGJ1aWxkIOW/veeVpeaWh+S7tgouZG9ja2VyaWdub3JlCkRvY2tlcmZpbGUKLmdpdAouc3ZuCi5pZGVhCiovLmdpdAoqLy5zdm4KLi9jaHJvbWUKLnNjYW5uZXJ3b3JrCi5lZGl0Y29uZmlnCi5lc2xpbnRpZ25vcmUKLmVzbGludHJjCi5naXRsYWItY2kueW1sCi5saW50c3RhZ2VkcmMKLnRyYXZpcy55bWwKbm9kZV9tb2R1bGVzCgoK"
+	},
+	{
 		"key": "kubernetes/v1/deploy",
 		"flags": 0,
 		"value": "ewoJImFwaVZlcnNpb24iOiAiYXBwcy92MSIsCgkia2luZCI6ICJEZXBsb3ltZW50IiwKCSJtZXRhZGF0YSI6IHsKCQkibmFtZSI6ICJnbyIsCgkJIm5hbWVzcGFjZSI6ICJkZWZhdWx0IgoJfSwKCSJzcGVjIjogewoJCSJyZXBsaWNhcyI6IDEsCiAgICAicmV2aXNpb25IaXN0b3J5TGltaXQiOiAzLAoJCSJzZWxlY3RvciI6IHsKCQkJIm1hdGNoTGFiZWxzIjogewoJCQkJImFwcCI6ICJnbyIKCQkJfQoJCX0sCgkJInRlbXBsYXRlIjogewoJCQkibWV0YWRhdGEiOiB7CgkJCQkibGFiZWxzIjogewoJCQkJCSJhcHAiOiAiZ28iCgkJCQl9CgkJCX0KCQl9LAoJCSJ0ZXJtaW5hdGlvbkdyYWNlUGVyaW9kU2Vjb25kcyI6IDUKCX0KfQ=="
