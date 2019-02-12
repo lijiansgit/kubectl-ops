@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -49,9 +50,16 @@ func deploy() {
 	}
 
 	r := NewRelease()
-	r.DeletePod()
-	log.Debug("deployment: %s", config.deployment.String())
 
+	// async delete gray pod
+	wg := new(sync.WaitGroup)
+	wg.Add(1)
+	go func() {
+		r.DeletePod()
+		wg.Done()
+	}()
+
+	log.Debug("deployment: %s", config.deployment.String())
 	if _, err := r.GetDeployment(); err != nil {
 		log.Warn("deployment: %s no exist, create...", config.deployment.Name)
 		r.CreateDeployment()
@@ -78,6 +86,8 @@ func deploy() {
 	if config.releaseCheck == "1" {
 		r.CheckDeployment()
 	}
+
+	wg.Wait()
 }
 
 func gray() {
