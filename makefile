@@ -4,6 +4,7 @@ DATE_TIME=`date '+%Y-%m-%d %H:%M:%S'`
 
 common:
 	go build -o dev
+	dos2unix install.sh
 
 dev: common
 	echo "dev"

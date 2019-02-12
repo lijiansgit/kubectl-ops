@@ -35,7 +35,8 @@ Software:
 ```bash
 yum install git -y
 git clone -v https://github.com/lijiansgit/kubectl-ops
-bash kubectl-ops/install.sh
+cd kubectl-ops
+bash install.sh
 kubectl-ops -h
 ```
 
@@ -114,6 +115,8 @@ kubectl-ops -h
 -c: 连接kubernetes apiserver的配置文件，默认为$HOME/.kube/config
 
 -cp: consul 配置路径，默认为kubernetes/v1
+
+-v: true/false 是否输出DEBUG日志，用于调试
 
 Dockerfile从consul读取默认值，如果发现代码根目录存在此文件，则使用代码自定义Dockerfile
 

@@ -4,7 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
+	"errors"
+
 	"k8s.io/api/core/v1"
 
 	log "github.com/lijiansgit/go/libs/log4go"
